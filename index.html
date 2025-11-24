@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Type play</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Outline Tool</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&display=swap");
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: "Nimbus Sans L", Helvetica, Arial, sans-serif;
+      background: #d0d0d0;
+      color: #000;
+    }
+    .mac-desktop {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      background-image:
+        radial-gradient(#9f9f9f 12%, transparent 13%),
+        radial-gradient(#e7e7e7 12%, transparent 13%);
+      background-position: 0 0, 2px 2px;
+      background-size: 4px 4px;
+    }
+    .pixel-outline-app {
+      position: relative;
+      width: 100%;
+      max-width: 62rem;
+      background: #fff;
+      background-image: radial-gradient(#000 10%, transparent 11%);
+      background-size: 3px 3px;
+      box-shadow: inset 0 0 0 1px #000;
+      padding: 3.25rem 2.25rem 2.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+    .pixel-outline-app__titlebar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 28px;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Press Start 2P", monospace;
+      font-size: 0.38rem;
+      image-rendering: pixelated;
+    }
+    .pixel-outline-app__dashes {
+      position: absolute;
+      top: 2px;
+      width: min(clamp(400px, 70vw, 760px), calc(50% - 10rem));
+      height: calc(100% - 4px);
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      justify-content: center;
+    }
+    .pixel-outline-app__dashes--left { left: clamp(-76px, 0.4vw, 4px); }
+    .pixel-outline-app__dashes--right { right: clamp(-76px, 0.4vw, 4px); }
+    .pixel-outline-app__dash {
+      width: 100%;
+      height: 2px;
+      background: #000;
+      image-rendering: pixelated;
+    }
+    .pixel-outline-app__title-text {
+      padding: 0 5.5rem;
+      white-space: nowrap;
+    }
+    .layout {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      min-height: 600px;
+    }
+    @media (min-width: 1024px) {
+      .layout {
+        flex-direction: row;
+        align-items: stretch;
+      }
+    }
+    .panel {
+      width: 100%;
+      max-width: 280px;
+      background: #fff;
+      border: 1px solid #000;
+      padding: 2.75rem 1rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      position: relative;
+    }
+    .panel::before {
+      content: "CONTROLS";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2.1rem;
+      background: #dcdcdc;
+      background-image: radial-gradient(#000 10%, transparent 11%);
+      background-size: 3px 3px;
+      border-bottom: 1px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Press Start 2P", monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      image-rendering: pixelated;
+    }
+    .panel__upload {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .panel__upload-title {
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+    }
+    .upload-wrapper {
+      position: relative;
+    }
+    .panel__upload-block {
+      width: clamp(5rem, 70%, 6.5rem);
+      aspect-ratio: 1/1;
+      border: 1px solid #000;
+      background: #f8f8f8;
+      background-image: radial-gradient(#000 12%, transparent 13%);
+      background-size: 4px 4px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .panel__upload-block:hover {
+      filter: brightness(0.88);
+    }
+    .panel__upload-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #f8f8f8;
+    }
+    .panel__upload-icon {
+      width: 1.8rem;
+      height: 1.8rem;
+    }
+    .style-icons {
+      position: absolute;
+      right: -0.5rem;
+      bottom: -0.15rem;
+      display: flex;
+      gap: 0.2rem;
+      align-items: center;
+      justify-content: center;
+      height: 24px;
+      line-height: 1;
+    }
+    .style-button {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      font-family: inherit;
+      line-height: 1;
+    }
+    .style-button[data-style="square"] {
+      font-size: 1.5rem;
+      color: #000;
+    }
+    .style-button[data-style="circle"] {
+      font-size: 1.7rem;
+      color: #000;
+      padding-top: 1.5px;
+    }
+    .style-button[data-style="filled"] svg {
+      width: 12px;
+      height: 12px;
+      display: block;
+      image-rendering: pixelated;
+      margin-top: 4.8px;
+    }
+    .style-button.active {
+      background: transparent;
+    }
+    .panel__group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .field__label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+    }
+    .pixel-slider {
+      appearance: none;
+      height: 2px;
+      background: rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      border: none;
+      outline: none;
+      margin: 9px 0;
+    }
+    .pixel-slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: #000;
+      cursor: pointer;
+      border: none;
+    }
+    .pixel-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      background: #000;
+      border: none;
+      border-radius: 0;
+    }
+    .pixel-slider::-moz-range-track {
+      height: 2px;
+      background: rgba(0, 0, 0, 0.4);
+      border: none;
+    }
+    .color-control__swatches {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.35rem;
+    }
+    .color-control__swatch {
+      width: 100%;
+      height: 24px;
+      border: 1px solid #000;
+      cursor: pointer;
+    }
+    .color-control__swatch[type="color"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+    }
+    .panel__actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .panel__actions-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.45rem;
+    }
+    .panel__actions-label,
+    .panel__reset-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+    }
+    .panel__reset-label {
+      cursor: pointer;
+    }
+    .panel__actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+    }
+    .panel__action button {
+      width: 100%;
+      border: 1px solid #000;
+      background: #fdfdfd;
+      background-image: radial-gradient(#000 11%, transparent 12%);
+      background-size: 4px 4px;
+      padding: 0.45rem;
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: filter 0.15s ease;
+    }
+    .panel__action button:hover:not(:disabled) {
+      filter: brightness(0.85);
+    }
+    .panel__action button:disabled {
+      opacity: 1;
+      filter: brightness(0.6);
+      cursor: default;
+    }
+    .panel__descriptor {
+      margin-top: auto;
+      font-family: "Press Start 2P", monospace;
+      font-size: 0.62rem;
+      text-align: center;
+      line-height: 1.8;
+    }
+    .error {
+      margin: 0;
+      border: 1px solid #000;
+      background: #fdfdfd;
+      background-image: radial-gradient(#000 10%, transparent 11%);
+      background-size: 3px 3px;
+      padding: 0.5rem 0.6rem;
+      font-size: 0.68rem;
+      box-shadow: inset -2px -2px 0 rgba(0,0,0,0.35);
+    }
+    .preview {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .preview__canvas {
+      position: relative;
+      border: 1px solid #000;
+      background: #fff;
+      overflow: hidden;
+      padding-top: 2.2rem;
+      flex: 1;
+      cursor: grab;
+      min-height: 400px;
+      height: 100%;
+      display: flex;
+    }
+    .preview__canvas::before {
+      content: "PREVIEW";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2.2rem;
+      background: #dcdcdc;
+      background-image: radial-gradient(#000 10%, transparent 11%);
+      background-size: 3px 3px;
+      border-bottom: 1px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Press Start 2P", monospace;
+      font-size: 0.56rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .preview__canvas canvas {
+      width: 100% !important;
+      height: 100% !important;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      flex: 1;
+      display: block;
+    }
+    .preview__canvas.dragging {
+      cursor: grabbing;
+    }
+    .empty-state {
+      position: absolute;
+      inset: 2.2rem 0 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      color: rgba(0,0,0,0.3);
+      background: #fefefe;
+      background-image: radial-gradient(#000 11%, transparent 12%);
+      background-size: 4px 4px;
+      font-family: "Press Start 2P", monospace;
+      font-size: 0.35rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .typing-char {
+      opacity: 0;
+      margin-right: 0.15rem;
+      transition: opacity 0.2s ease-in-out;
+    }
+    .typing-char--visible {
+      opacity: 1;
+    }
+    .preview__notice {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.6rem;
+      line-height: 1.6;
+      background: #fdfdfd;
+      background-image: radial-gradient(#000 11%, transparent 12%);
+      background-size: 4px 4px;
+      border: 1px solid #000;
+      padding: 0.75rem;
+      margin: 0;
+      width: fit-content;
+      padding-left: 2.35rem;
+      align-self: flex-end;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <main class="mac-desktop">
+    <div class="pixel-outline-app">
+      <div class="pixel-outline-app__titlebar">
+        <div class="pixel-outline-app__dashes pixel-outline-app__dashes--left">
+          <span class="pixel-outline-app__dash"></span><span class="pixel-outline-app__dash"></span><span class="pixel-outline-app__dash"></span><span class="pixel-outline-app__dash"></span><span class="pixel-outline-app__dash"></span><span class="pixel-outline-app__dash"></span><span class="pixel-outline-app__dash"></span>
+        </div>
+        <span class="pixel-outline-app__title-text">PIXEL OUTLINE TOOL</span>
+        <div class="pixel-outline-app__dashes pixel-outline-app__dashes--right">
+          <span class="pixel-outline-app__dash"></span><span class="pixel-outline-app__dash"></span><span class="pixel-outline-app__dash"></span><span class="pixel-outline-app__dash"></span><span class="pixel-outline-app__dash"></span><span class="pixel-outline-app__dash"></span><span class="pixel-outline-app__dash"></span>
+        </div>
+      </div>
+      <div class="layout">
+        <section class="panel">
+          <div class="panel__upload">
+            <span class="panel__upload-title">Input image</span>
+            <div class="upload-wrapper">
+              <label for="fileInput" class="panel__upload-block">
+                <img id="uploadPreview" class="panel__upload-preview hidden" alt="Preview" />
+                <svg id="uploadIcon" class="panel__upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square" stroke-linejoin="miter">
+                  <path d="M3 21V6h8l2-4h16v19H3Z"></path>
+                  <path d="M5 8h22"></path>
+                </svg>
+              </label>
+              <div class="style-icons">
+                <button id="styleSquare" class="style-button active" data-style="square">■</button>
+                <button id="styleCircle" class="style-button" data-style="circle">●</button>
+                <button id="styleFilled" class="style-button" data-style="filled">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="7" cy="7" r="6" fill="#FF6D00" stroke="#000" stroke-width="1.5"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <input id="fileInput" type="file" accept="image/*" hidden />
+          </div>
+          <p id="error" class="error hidden"></p>
+          <div class="panel__group">
+            <div class="field">
+              <div class="field__label"><span>Pixel size</span><span id="gridSizeVal">10</span></div>
+              <input id="gridSize" class="pixel-slider" type="range" min="1" max="50" value="10" />
+            </div>
+            <div class="field">
+              <div class="field__label"><span>Edge threshold</span><span id="edgeThresholdVal">30</span></div>
+              <input id="edgeThreshold" class="pixel-slider" type="range" min="1" max="230" value="30" />
+            </div>
+            <div class="field">
+              <div class="field__label"><span>Detail boost</span><span id="detailLevelVal">1</span></div>
+              <input id="detailLevel" class="pixel-slider" type="range" min="1" max="30" step="1" value="1" />
+            </div>
+            <div class="field">
+              <div class="field__label"><span>Stroke width</span><span id="lineThicknessVal">1</span></div>
+              <input id="lineThickness" class="pixel-slider" type="range" min="1" max="35" value="1" />
+            </div>
+            <div class="field">
+              <div class="field__label"><span>Outline thickness</span><span id="outlineThicknessVal">5</span></div>
+              <input id="outlineThickness" class="pixel-slider" type="range" min="1" max="10" value="5" />
+            </div>
+            <div class="field field--colors">
+              <div class="field__label"><span>BG Colors</span></div>
+              <div class="color-control">
+                <div class="color-control__swatches">
+                  <button class="color-control__swatch bg-swatch" style="background:#F6F0FF" data-color="#F6F0FF"></button>
+                  <button class="color-control__swatch bg-swatch" style="background:#FFE7CF" data-color="#FFE7CF"></button>
+                  <button class="color-control__swatch bg-swatch" style="background:#FFF3F3" data-color="#FFF3F3"></button>
+                  <button class="color-control__swatch bg-swatch" style="background:#E0F5FF" data-color="#E0F5FF"></button>
+                  <button class="color-control__swatch bg-swatch" style="background:#E7FFE5" data-color="#E7FFE5"></button>
+                  <input type="color" id="customBgPicker" class="color-control__swatch bg-swatch active" value="#FFFFFF">
+                </div>
+              </div>
+            </div>
+            <div class="field field--colors">
+              <div class="field__label"><span>FG Colors</span></div>
+              <div class="color-control">
+                <div class="color-control__swatches">
+                  <button class="color-control__swatch fg-swatch" style="background:#4A148C" data-color="#4A148C"></button>
+                  <button class="color-control__swatch fg-swatch" style="background:#BF360C" data-color="#BF360C"></button>
+                  <button class="color-control__swatch fg-swatch" style="background:#B71C1C" data-color="#B71C1C"></button>
+                  <button class="color-control__swatch fg-swatch" style="background:#01579B" data-color="#01579B"></button>
+                  <button class="color-control__swatch fg-swatch" style="background:#1B5E20" data-color="#1B5E20"></button>
+                  <input type="color" id="customFgPicker" class="color-control__swatch fg-swatch active" value="#000000">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel__actions">
+            <div class="panel__actions-row">
+              <span class="panel__actions-label">Export</span>
+              <span id="resetBtn" class="panel__reset-label">Reset</span>
+            </div>
+            <div class="panel__actions-grid">
+              <div class="panel__action"><button id="exportPNG">PNG</button></div>
+              <div class="panel__action"><button id="exportSVG">SVG</button></div>
+            </div>
+          </div>
+          <div class="panel__descriptor">2025 Type Play Graphic Generator Tool</div>
+        </section>
+        <section class="preview">
+          <div class="preview__canvas" id="previewCanvas">
+            <canvas id="pixelCanvas"></canvas>
+            <div id="emptyState" class="empty-state">
+              <span class="typing-char">G</span><span class="typing-char">R</span><span class="typing-char">A</span><span class="typing-char">P</span><span class="typing-char">H</span><span class="typing-char">I</span><span class="typing-char">C</span>
+              <span class="typing-char"> </span><span class="typing-char"> </span><span class="typing-char"> </span><span class="typing-char"> </span>
+              <span class="typing-char">G</span><span class="typing-char">E</span><span class="typing-char">N</span><span class="typing-char">E</span><span class="typing-char">R</span><span class="typing-char">A</span><span class="typing-char">T</span><span class="typing-char">I</span><span class="typing-char">O</span><span class="typing-char">N</span>
+              <span class="typing-char"> </span><span class="typing-char"> </span><span class="typing-char"> </span><span class="typing-char"> </span>
+              <span class="typing-char">P</span><span class="typing-char">R</span><span class="typing-char">E</span><span class="typing-char">V</span><span class="typing-char">I</span><span class="typing-char">E</span><span class="typing-char">W</span>
+            </div>
+          </div>
+          <p class="preview__notice">
+            The experimental graphic generator easily creates creative graphics, sparks design inspiration, and enhances everyday design workflow efficiency.
+          </p>
+        </section>
+      </div>
+    </div>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const DEFAULT_BACKGROUND_COLOR = '#FFFFFF';
+      const DEFAULT_FOREGROUND_COLOR = '#000000';
+      const DEMO_COLOR = '#FF6D00';
+      const canvas = document.getElementById('pixelCanvas');
+      const ctx = canvas.getContext('2d', { alpha: false, willReadFrequently: true });
+      let displayWidth = 520;
+      let displayHeight = 520;
+      let dpr = window.devicePixelRatio || 1;
+      let isExporting = false; // 导出锁
+      // ==================== Canvas 尺寸 ====================
+      function resizeCanvas() {
+        if (isExporting) return;
+        const container = document.getElementById('previewCanvas');
+        const rect = container.getBoundingClientRect();
+        displayWidth = Math.floor(rect.width);
+        displayHeight = Math.floor(rect.height);
+        canvas.width = displayWidth * dpr;
+        canvas.height = displayHeight * dpr;
+        canvas.style.width = displayWidth + 'px';
+        canvas.style.height = displayHeight + 'px';
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.scale(dpr, dpr);
+        ctx.imageSmoothingEnabled = false;
+        renderPreview();
+      }
+      // ==================== DOM Elements ====================
+      const fileInput = document.getElementById('fileInput');
+      const errorEl = document.getElementById('error');
+      const uploadPreview = document.getElementById('uploadPreview');
+      const uploadIcon = document.getElementById('uploadIcon');
+      const emptyState = document.getElementById('emptyState');
+      const previewCanvas = document.getElementById('previewCanvas');
+      const exportPNGButton = document.getElementById('exportPNG');
+      const exportSVGButton = document.getElementById('exportSVG');
+      const resetLabel = document.querySelector('.panel__reset-label');
+      const gridSizeSlider = document.getElementById('gridSize');
+      const edgeSlider = document.getElementById('edgeThreshold');
+      const detailSlider = document.getElementById('detailLevel');
+      const lineSlider = document.getElementById('lineThickness');
+      const outlineSlider = document.getElementById('outlineThickness');
+      const gridSizeVal = document.getElementById('gridSizeVal');
+      const edgeThresholdVal = document.getElementById('edgeThresholdVal');
+      const detailLevelVal = document.getElementById('detailLevelVal');
+      const lineThicknessVal = document.getElementById('lineThicknessVal');
+      const outlineThicknessVal = document.getElementById('outlineThicknessVal');
+      const bgSwatches = Array.from(document.querySelectorAll('.bg-swatch[data-color]'));
+      const customBgPicker = document.getElementById('customBgPicker');
+      const fgSwatches = Array.from(document.querySelectorAll('.fg-swatch[data-color]'));
+      const customFgPicker = document.getElementById('customFgPicker');
+      const styleButtons = document.querySelectorAll('.style-button');
+      // ==================== 状态变量 ====================
+      let styleMode = 'square';
+      let processedImage = null;
+      let demoImage = null;
+      let hasImage = false;
+      let gridSize = 10, edgeThreshold = 30, detailLevel = 1, lineThickness = 1, outlineThickness = 5;
+      let backgroundColor = DEFAULT_BACKGROUND_COLOR;
+      let foregroundColor = DEFAULT_FOREGROUND_COLOR;
+      let offsetX = 0, offsetY = 0;
+      let isDragging = false;
+      let dragStartX = 0, dragStartY = 0;
+      let cachedEdges = null;
+      let typingTimeout = null;
+      let isUserSetBG = false;
+      let isUserSetFG = false;
+      // ==================== 防重复点击机制 ====================
+      let exportClickTime = 0;
+      const MIN_CLICK_INTERVAL = 2000; // 2秒内不允许重复点击
+      // ==================== 背景填充 ====================
+      function fillCanvasBackground(color) {
+        ctx.save();
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.fillStyle = color;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.restore();
+        ctx.scale(dpr, dpr);
+      }
+      // ==================== 渲染预览 ====================
+      function renderPreview() {
+        if (!processedImage && !demoImage) return;
+        const image = processedImage || demoImage;
+        if (previewCanvas.style.backgroundColor !== backgroundColor) fillCanvasBackground(backgroundColor);
+        if (cachedEdges === null) cachedEdges = detectEdges(image.preview, edgeThreshold, detailLevel);
+        const uniformScale = Math.min(displayWidth / image.previewWidth, displayHeight / image.previewHeight);
+        const canvasOffsetX = (displayWidth - image.previewWidth * uniformScale) / 2 + offsetX;
+        const canvasOffsetY = (displayHeight - image.previewHeight * uniformScale) / 2 + offsetY;
+        renderPixels(ctx, cachedEdges, image.previewWidth, image.previewHeight, uniformScale, canvasOffsetX, canvasOffsetY, Math.max(1, gridSize));
+      }
+      // ==================== 动态文字 ====================
+      function getReadableTextColor(hex) {
+        const normalized = hex.replace('#', '').trim();
+        const expanded = normalized.length === 3 ? normalized.split('').map(c => c+c).join('') : normalized;
+        const r = parseInt(expanded.slice(0,2),16);
+        const g = parseInt(expanded.slice(2,4),16);
+        const b = parseInt(expanded.slice(4,6),16);
+        const lum = (0.2126*r + 0.7152*g + 0.0722*b)/255;
+        return lum > 0.5 ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.68)';
+      }
+      function updateBackgroundVisuals() {
+        previewCanvas.style.backgroundColor = backgroundColor;
+        emptyState.style.backgroundColor = backgroundColor;
+        emptyState.style.color = getReadableTextColor(backgroundColor);
+        const chars = document.querySelectorAll('.typing-char');
+        if (hasImage || backgroundColor !== DEFAULT_BACKGROUND_COLOR) {
+          clearTimeout(typingTimeout);
+          typingTimeout = null;
+          emptyState.classList.add('hidden');
+          chars.forEach(c => c.classList.remove('typing-char--visible'));
+        } else {
+          emptyState.classList.remove('hidden');
+          if (!typingTimeout) runTypingAnimation(chars);
+        }
+      }
+      function runTypingAnimation(chars) {
+        let i = 0;
+        emptyState.classList.remove('hidden');
+        function typeNext() {
+          if (i < chars.length) {
+            chars[i].classList.add('typing-char--visible');
+            i++;
+            typingTimeout = setTimeout(typeNext, 35);
+          } else {
+            typingTimeout = setTimeout(() => {
+              chars.forEach(c => c.classList.remove('typing-char--visible'));
+              i = 0;
+              typingTimeout = setTimeout(typeNext, 500);
+            }, 1000);
+          }
+        }
+        typeNext();
+      }
+      // ==================== 图像处理 ====================
+      function detectEdges(imageData, edgeThresholdValue, detailLevelValue) {
+        const {data, width, height} = imageData;
+        const gray = new Uint8Array(width*height);
+        for (let i=0;i<width*height;i++) gray[i] = data[i*4]*0.3 + data[i*4+1]*0.59 + data[i*4+2]*0.11;
+        const magnitude = new Float32Array(width*height);
+        const direction = new Float32Array(width*height);
+        for (let y=1;y<height-1;y++) for (let x=1;x<width-1;x++){
+          const gx = gray[(y-1)*width+(x+1)] + 2*gray[y*width+(x+1)] + gray[(y+1)*width+(x+1)] -
+                     (gray[(y-1)*width+(x-1)] + 2*gray[y*width+(x-1)] + gray[(y+1)*width+(x-1)]);
+          const gy = gray[(y-1)*width+(x-1)] + 2*gray[(y-1)*width+x] + gray[(y-1)*width+(x+1)] -
+                     (gray[(y+1)*width+(x-1)] + 2*gray[(y+1)*width+x] + gray[(y+1)*width+(x+1)]);
+          const idx = y*width+x;
+          magnitude[idx] = Math.sqrt(gx*gx+gy*gy)/4;
+          direction[idx] = Math.atan2(gy,gx);
+        }
+        const edges = [], weakEdges = [];
+        const factor = 1-(detailLevelValue-1)/29*0.75;
+        const high = Math.max(edgeThresholdValue*factor,1);
+        const low = high*0.4;
+        for (let y=1;y<height-1;y++) for (let x=1;x<width-1;x++){
+          const idx = y*width+x;
+          if(magnitude[idx]<=low) continue;
+          let dir=(direction[idx]*180/Math.PI+180)%180;
+          let d = dir<22.5||dir>=157.5?0:dir<67.5?45:dir<112.5?90:135;
+          let n1,n2;
+          if(d===0){n1=magnitude[idx-1];n2=magnitude[idx+1];}
+          else if(d===45){n1=magnitude[idx+width-1];n2=magnitude[idx-width+1];}
+          else if(d===90){n1=magnitude[idx-width];n2=magnitude[idx+width];}
+          else {n1=magnitude[idx+width+1];n2=magnitude[idx-width-1];}
+          if(magnitude[idx]>=n1 && magnitude[idx]>=n2){
+            if(magnitude[idx]>=high) edges.push(idx);
+            else weakEdges.push(idx);
+          }
+        }
+        const edgeSet=new Set(edges);
+        const connected=new Set();
+        weakEdges.forEach(idx=>{
+          const y=Math.floor(idx/width);
+          const x=idx%width;
+          for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){
+            if(dx===0 && dy===0) continue;
+            const nIdx=(y+dy)*width+x+dx;
+            if(edgeSet.has(nIdx)){ connected.add(idx); break; }
+          }
+        });
+        return [...edges,...Array.from(connected)];
+      }
+      function prepareImage(image){
+        const w=image.naturalWidth||image.width;
+        const h=image.naturalHeight||image.height;
+        const fullCanvas=document.createElement('canvas');
+        fullCanvas.width=w; fullCanvas.height=h;
+        const fullCtx=fullCanvas.getContext('2d');
+        fullCtx.drawImage(image,0,0,w,h);
+        const target=360;
+        const maxDim=Math.max(w,h);
+        const scale=maxDim>target?target/maxDim:1;
+        const pw=Math.max(1,Math.round(w*scale));
+        const ph=Math.max(1,Math.round(h*scale));
+        const previewCanvasEl=document.createElement('canvas');
+        previewCanvasEl.width=pw; previewCanvasEl.height=ph;
+        const previewCtx=previewCanvasEl.getContext('2d');
+        previewCtx.imageSmoothingEnabled=false;
+        previewCtx.drawImage(image,0,0,pw,ph);
+        const preview=previewCtx.getImageData(0,0,pw,ph);
+        return {preview, previewWidth: pw, previewHeight: ph};
+      }
+      function calculateShapeParams(x, y, uniformScale, canvasOffsetX, canvasOffsetY, isExport = false){
+        const baseSize = uniformScale * gridSize;
+        const thicknessFactor = 1 + (lineThickness - 1) * 0.25;
+        const rectSize = baseSize * thicknessFactor;
+        const thicknessOffset = (rectSize - baseSize) / 2;
+        const drawX = canvasOffsetX + x * uniformScale - thicknessOffset;
+        const drawY = canvasOffsetY + y * uniformScale - thicknessOffset;
+        return {drawX, drawY, rectSize, baseSize};
+      }
+      function renderPixels(targetCtx, edges, previewWidth, previewHeight, uniformScale, canvasOffsetX, canvasOffsetY, step){
+        targetCtx.imageSmoothingEnabled=false;
+        const isExport = targetCtx.canvas.width===2880 || targetCtx.canvas.height===3840;
+        const pixelRatio = isExport?1:dpr;
+      
+        for(let i=0;i<edges.length;i+=step){
+          const index=edges[i];
+          const y=Math.floor(index/previewWidth);
+          const x=index%previewWidth;
+          const p=calculateShapeParams(x,y,uniformScale,canvasOffsetX,canvasOffsetY, isExport);
+        
+          if(styleMode==='square'){
+            targetCtx.fillStyle=foregroundColor;
+            targetCtx.fillRect(p.drawX,p.drawY,p.rectSize,p.rectSize);
+          } else if(styleMode==='circle'){
+            const cx=p.drawX+p.rectSize/2;
+            const cy=p.drawY+p.rectSize/2;
+            const r=p.rectSize/2;
+            targetCtx.fillStyle=foregroundColor;
+            targetCtx.beginPath();
+            targetCtx.arc(cx,cy,r,0,Math.PI*2);
+            targetCtx.fill();
+          } else if(styleMode==='filled'){
+            const cx=p.drawX+p.rectSize/2;
+            const cy=p.drawY+p.rectSize/2;
+            const baseRadius=p.rectSize/2;
+            const maxStroke=baseRadius*1.1;
+            const minStroke=baseRadius*0.07;
+            const blackStroke=minStroke+(maxStroke-minStroke)*(outlineThickness-1)/9 * (isExport ? 1 : pixelRatio);
+            targetCtx.fillStyle='#000';
+            targetCtx.beginPath();
+            targetCtx.arc(cx,cy,baseRadius,0,Math.PI*2);
+            targetCtx.fill();
+            const innerRadius=Math.max(baseRadius-blackStroke,0);
+            if(innerRadius>0.4){
+              targetCtx.fillStyle=foregroundColor;
+              targetCtx.beginPath();
+              targetCtx.arc(cx,cy,innerRadius,0,Math.PI*2);
+              targetCtx.fill();
+            }
+          }
+        }
+      }
+      // ==================== 颜色 & Reset ====================
+      function setBackgroundColor(color, byUser = true){
+        backgroundColor=color.toUpperCase();
+        bgSwatches.forEach(s=>s.classList.toggle('active',s.dataset.color?.toUpperCase()===color));
+        const hasActiveBg = bgSwatches.some(s => s.classList.contains('active'));
+        if (hasActiveBg) {
+          customBgPicker.classList.remove('active');
+        } else {
+          customBgPicker.classList.add('active');
+        }
+        if (byUser) isUserSetBG = true;
+        fillCanvasBackground(backgroundColor);
+        updateBackgroundVisuals();
+        renderPreview();
+      }
+      function setForegroundColor(color, byUser = true){
+        foregroundColor=color.toUpperCase();
+        fgSwatches.forEach(s=>s.classList.toggle('active',s.dataset.color?.toUpperCase()===color));
+        const hasActiveFg = fgSwatches.some(s => s.classList.contains('active'));
+        if (hasActiveFg) {
+          customFgPicker.classList.remove('active');
+        } else {
+          customFgPicker.classList.add('active');
+        }
+        if (byUser) isUserSetFG = true;
+        renderPreview();
+      }
+      function resetSettings() {
+        gridSize=10; edgeThreshold=30; detailLevel=1; lineThickness=1; outlineThickness=5;
+        gridSizeSlider.value=10; gridSizeVal.textContent='10';
+        edgeSlider.value=30; edgeThresholdVal.textContent='30';
+        detailSlider.value=1; detailLevelVal.textContent='1';
+        lineSlider.value=1; lineThicknessVal.textContent='1';
+        outlineSlider.value=5; outlineThicknessVal.textContent='5';
+        customBgPicker.value = DEFAULT_BACKGROUND_COLOR;
+        customFgPicker.value = DEFAULT_FOREGROUND_COLOR;
+        setBackgroundColor(DEFAULT_BACKGROUND_COLOR, false);
+        setForegroundColor(DEFAULT_FOREGROUND_COLOR, false);
+        styleButtons.forEach(b=>b.classList.remove('active'));
+        document.querySelector('[data-style="square"]').classList.add('active');
+        styleMode='square';
+        offsetX=offsetY=0;
+        cachedEdges=null;
+        isUserSetBG = false;
+        isUserSetFG = false;
+      }
+      function resetAll(){
+        resetSettings();
+        processedImage=null; demoImage=null; hasImage=false;
+        uploadPreview.src=''; uploadPreview.classList.add('hidden');
+        uploadIcon.classList.remove('hidden');
+        canvas.style.cursor='default';
+        fillCanvasBackground(backgroundColor);
+        updateBackgroundVisuals();
+        fileInput.value='';
+      }
+      // ==================== 拖拽 ====================
+      canvas.addEventListener('mousedown', e=>{
+        if(!hasImage || e.button!==0) return;
+        isDragging=true;
+        dragStartX=e.clientX-offsetX;
+        dragStartY=e.clientY-offsetY;
+        canvas.style.cursor='grabbing';
+        previewCanvas.classList.add('dragging');
+      });
+      document.addEventListener('mousemove', e=>{
+        if(!isDragging) return;
+        offsetX=e.clientX-dragStartX;
+        offsetY=e.clientY-dragStartY;
+        renderPreview();
+      });
+      document.addEventListener('mouseup', ()=>{
+        if(isDragging){
+          isDragging=false;
+          canvas.style.cursor='grab';
+          previewCanvas.classList.remove('dragging');
+        }
+      });
+      // ==================== 下载 ====================
+      function downloadBlob(blob, filename){
+        if(window.navigator && window.navigator.msSaveOrOpenBlob){
+          window.navigator.msSaveOrOpenBlob(blob, filename);
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display='none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(()=>{
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        },100);
+      }
+      // ==================== 导出 PNG ====================
+      function handleExportPNG(event){
+        // 防止事件冒泡和默认行为
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      
+        const now = Date.now();
+        // 防重复点击检查
+        if (now - exportClickTime < MIN_CLICK_INTERVAL) {
+          console.log('点击过于频繁，请稍后再试');
+          return;
+        }
+      
+        if(!hasImage || isExporting) return;
+      
+        // 立即设置导出状态
+        exportClickTime = now;
+        isExporting = true;
+      
+        // 禁用按钮并添加视觉反馈
+        exportPNGButton.disabled = true;
+        exportPNGButton.style.opacity = '0.6';
+        exportPNGButton.style.cursor = 'not-allowed';
+        exportPNGButton.textContent = '导出中...';
+        const image = processedImage||demoImage;
+        if(cachedEdges===null) cachedEdges=detectEdges(image.preview, edgeThreshold, detailLevel);
+        const EXPORT_WIDTH=2880, EXPORT_HEIGHT=3840;
+        const scale=Math.min(EXPORT_WIDTH/image.previewWidth, EXPORT_HEIGHT/image.previewHeight);
+        const ox=(EXPORT_WIDTH-image.previewWidth*scale)/2;
+        const oy=(EXPORT_HEIGHT-image.previewHeight*scale)/2;
+        const exportCanvas=document.createElement('canvas');
+        exportCanvas.width=EXPORT_WIDTH; exportCanvas.height=EXPORT_HEIGHT;
+        const xctx=exportCanvas.getContext('2d',{alpha:false});
+        xctx.fillStyle=backgroundColor;
+        xctx.fillRect(0,0,EXPORT_WIDTH,EXPORT_HEIGHT);
+        renderPixels(xctx, cachedEdges, image.previewWidth, image.previewHeight, scale, ox, oy, Math.max(1,gridSize));
+        // 使用Promise确保流程完整
+        new Promise((resolve) => {
+          exportCanvas.toBlob(blob=>{
+            downloadBlob(blob,`${Date.now()}.png`);
+            resolve();
+          },'image/png', 1.0);
+        }).finally(() => {
+          // 恢复按钮状态
+          setTimeout(() => {
+            isExporting = false;
+            exportPNGButton.disabled = false;
+            exportPNGButton.style.opacity = '1';
+            exportPNGButton.style.cursor = 'pointer';
+            exportPNGButton.textContent = 'PNG';
+          }, 1000);
+        });
+      }
+      // ==================== 导出 SVG ====================
+      function handleExportSVG(event){
+        // 防止事件冒泡和默认行为
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      
+        const now = Date.now();
+        // 防重复点击检查
+        if (now - exportClickTime < MIN_CLICK_INTERVAL) {
+          console.log('点击过于频繁，请稍后再试');
+          return;
+        }
+      
+        if(!hasImage || isExporting) return;
+      
+        // 立即设置导出状态
+        exportClickTime = now;
+        isExporting = true;
+      
+        // 禁用按钮并添加视觉反馈
+        exportSVGButton.disabled = true;
+        exportSVGButton.style.opacity = '0.6';
+        exportSVGButton.style.cursor = 'not-allowed';
+        exportSVGButton.textContent = '导出中...';
+        const image=processedImage||demoImage;
+        if(cachedEdges===null) cachedEdges=detectEdges(image.preview, edgeThreshold, detailLevel);
+      
+        // 使用与PNG导出相同的尺寸和计算逻辑
+        const EXPORT_WIDTH=2880, EXPORT_HEIGHT=3840;
+        const scale=Math.min(EXPORT_WIDTH/image.previewWidth, EXPORT_HEIGHT/image.previewHeight);
+        const ox=(EXPORT_WIDTH-image.previewWidth*scale)/2;
+        const oy=(EXPORT_HEIGHT-image.previewHeight*scale)/2;
+        const svgNS='http://www.w3.org/2000/svg';
+        const svgEl=document.createElementNS(svgNS,'svg');
+        svgEl.setAttribute('xmlns',svgNS);
+        svgEl.setAttribute('width',EXPORT_WIDTH);
+        svgEl.setAttribute('height',EXPORT_HEIGHT);
+        svgEl.setAttribute('viewBox',`0 0 ${EXPORT_WIDTH} ${EXPORT_HEIGHT}`);
+      
+        // 背景
+        const bgRect=document.createElementNS(svgNS,'rect');
+        bgRect.setAttribute('x',0);
+        bgRect.setAttribute('y',0);
+        bgRect.setAttribute('width',EXPORT_WIDTH);
+        bgRect.setAttribute('height',EXPORT_HEIGHT);
+        bgRect.setAttribute('fill',backgroundColor);
+        svgEl.appendChild(bgRect);
+        // 创建SVG元素的辅助函数
+        const createSVGElement=(type,attrs)=>{
+          const el=document.createElementNS(svgNS,type);
+          Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));
+          return el;
+        };
+        // 渲染所有边缘点
+        for(let i=0;i<cachedEdges.length;i+=Math.max(1,gridSize)){
+          const index=cachedEdges[i];
+          const y=Math.floor(index/image.previewWidth);
+          const x=index%image.previewWidth;
+        
+          // 使用与PNG导出相同的参数计算
+          const baseSize = scale * gridSize;
+          const thicknessFactor = 1 + (lineThickness - 1) * 0.25;
+          const rectSize = baseSize * thicknessFactor;
+          const thicknessOffset = (rectSize - baseSize) / 2;
+          const drawX = ox + x * scale - thicknessOffset;
+          const drawY = oy + y * scale - thicknessOffset;
+          if(styleMode==='square'){
+            svgEl.appendChild(createSVGElement('rect',{
+              x: drawX,
+              y: drawY,
+              width: rectSize,
+              height: rectSize,
+              fill: foregroundColor
+            }));
+          } else if(styleMode==='circle'){
+            const cx = drawX + rectSize/2;
+            const cy = drawY + rectSize/2;
+            const r = rectSize/2;
+            svgEl.appendChild(createSVGElement('circle',{
+              cx: cx,
+              cy: cy,
+              r: r,
+              fill: foregroundColor
+            }));
+          } else if(styleMode==='filled'){
+            const cx = drawX + rectSize/2;
+            const cy = drawY + rectSize/2;
+            const baseRadius = rectSize/2;
+            const maxStroke = baseRadius * 1.1;
+            const minStroke = baseRadius * 0.07;
+            const blackStroke = minStroke + (maxStroke - minStroke) * (outlineThickness - 1) / 9;
+          
+            // 外层黑色圆
+            svgEl.appendChild(createSVGElement('circle',{
+              cx: cx,
+              cy: cy,
+              r: baseRadius,
+              fill: '#000'
+            }));
+          
+            // 内层彩色圆
+            const innerRadius = Math.max(baseRadius - blackStroke, 0);
+            if(innerRadius > 0.4){
+              svgEl.appendChild(createSVGElement('circle',{
+                cx: cx,
+                cy: cy,
+                r: innerRadius,
+                fill: foregroundColor
+              }));
+            }
+          }
+        }
+        const blob=new Blob([new XMLSerializer().serializeToString(svgEl)],{type:'image/svg+xml'});
+        downloadBlob(blob,`${Date.now()}.svg`);
+      
+        // 恢复按钮状态
+        setTimeout(() => {
+          isExporting = false;
+          exportSVGButton.disabled = false;
+          exportSVGButton.style.opacity = '1';
+          exportSVGButton.style.cursor = 'pointer';
+          exportSVGButton.textContent = 'SVG';
+        }, 1000);
+      }
+      // ==================== 初始化 ====================
+      function init(){
+        resizeCanvas();
+        fillCanvasBackground(backgroundColor);
+        updateBackgroundVisuals();
+        setBackgroundColor(DEFAULT_BACKGROUND_COLOR, false);
+        setForegroundColor(DEFAULT_FOREGROUND_COLOR, false);
+        window.addEventListener('resize',resizeCanvas);
+      
+        // 移除所有现有的事件监听器，然后重新绑定
+        const newPNGButton = exportPNGButton.cloneNode(true);
+        const newSVGButton = exportSVGButton.cloneNode(true);
+        exportPNGButton.parentNode.replaceChild(newPNGButton, exportPNGButton);
+        exportSVGButton.parentNode.replaceChild(newSVGButton, exportSVGButton);
+      
+        // 重新获取按钮引用
+        const cleanPNGButton = document.getElementById('exportPNG');
+        const cleanSVGButton = document.getElementById('exportSVG');
+      
+        // 使用一次性事件绑定
+        cleanPNGButton.addEventListener('click', handleExportPNG, { once: false });
+        cleanSVGButton.addEventListener('click', handleExportSVG, { once: false });
+      
+        resetLabel.addEventListener('click',resetAll);
+        fileInput.addEventListener('change',e=>{
+          if(!e.target.files.length) return;
+          const f=e.target.files[0];
+          if(!f.type.startsWith('image/')) return errorEl.textContent='请上传图片';
+          const img=new Image();
+          img.onload=()=>{
+            resetSettings();
+            processedImage=prepareImage(img);
+            hasImage=true; cachedEdges=null;
+            uploadPreview.src=URL.createObjectURL(f);
+            uploadPreview.classList.remove('hidden');
+            uploadIcon.classList.add('hidden');
+            canvas.style.cursor='grab';
+            renderPreview();
+            updateBackgroundVisuals();
+            fileInput.value = '';
+          };
+          img.src=URL.createObjectURL(f);
+        });
+        bgSwatches.forEach(s=>{
+          s.addEventListener('click',()=>setBackgroundColor(s.dataset.color));
+        });
+        customBgPicker.addEventListener('input',e=>setBackgroundColor(e.target.value));
+        fgSwatches.forEach(s=>{
+          s.addEventListener('click',()=>setForegroundColor(s.dataset.color));
+        });
+        customFgPicker.addEventListener('input',e=>setForegroundColor(e.target.value));
+        styleButtons.forEach(b=>{
+          b.addEventListener('click',()=>{
+            styleButtons.forEach(s=>s.classList.remove('active'));
+            b.classList.add('active');
+            const newStyle = b.dataset.style;
+            styleMode = newStyle;
+            if (newStyle === 'square' || newStyle === 'circle') {
+              if (!isUserSetBG && !isUserSetFG) {
+                customBgPicker.value = DEFAULT_BACKGROUND_COLOR;
+                customFgPicker.value = DEFAULT_FOREGROUND_COLOR;
+                setBackgroundColor(DEFAULT_BACKGROUND_COLOR, false);
+                setForegroundColor(DEFAULT_FOREGROUND_COLOR, false);
+              }
+            } else if (newStyle === 'filled' && foregroundColor === DEFAULT_FOREGROUND_COLOR) {
+                customFgPicker.value = DEMO_COLOR;
+                setForegroundColor(DEMO_COLOR, false);
+            }
+            renderPreview();
+          });
+        });
+        // slider 绑定
+        gridSizeSlider.addEventListener('input',e=>{gridSize=e.target.value; gridSizeVal.textContent=e.target.value; cachedEdges=null; renderPreview();});
+        edgeSlider.addEventListener('input',e=>{edgeThreshold=e.target.value; edgeThresholdVal.textContent=e.target.value; cachedEdges=null; renderPreview();});
+        detailSlider.addEventListener('input',e=>{detailLevel=e.target.value; detailLevelVal.textContent=e.target.value; cachedEdges=null; renderPreview();});
+        lineSlider.addEventListener('input',e=>{lineThickness=e.target.value; lineThicknessVal.textContent=e.target.value; renderPreview();});
+        outlineSlider.addEventListener('input',e=>{outlineThickness=e.target.value; outlineThicknessVal.textContent=e.target.value; renderPreview();});
+      }
+      // 确保只初始化一次
+      if (!window.pixelToolInitialized) {
+        init();
+        window.pixelToolInitialized = true;
+      }
+    })();
+  </script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
